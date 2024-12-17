@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首頁</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff8e1; /* 米色背景 */
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .search-input {
+      padding: 10px;
+      width: 300px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      margin-right: 10px;
+    }
+    .search-btn {
+      background-color: #d1a85c; /* 奶茶色 */
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+    }
+    .search-btn:hover {
+      background-color: #a88c4b;
+    }
+    .image-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 0 20px;
+    }
+    .image-item {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+    .image-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    .image-item:hover {
+      transform: scale(1.05);
+    }
+    .image-item:hover .tags {
+      opacity: 1;
+    }
+    .tags {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>圖片瀏覽</h1>
+  </header>
+
+  <div class="search-container">
+    <input type="text" class="search-input" id="search-bar" placeholder="搜尋標籤...">
+    <button class="search-btn" onclick="searchImages()">搜尋</button>
+  </div>
+
+  <div class="image-gallery" id="image-gallery">
+    <!-- 圖片將顯示在這裡 -->
+  </div>
+
+  <script>
+    let currentImageIndex = null;
+
+    function loadImages(images = null) {
+      const gallery = document.getElementById("image-gallery");
+      gallery.innerHTML = "";
+
+      const allImages = images || JSON.parse(localStorage.getItem("images")) || [];
+
+      allImages.forEach((image, index) => {
+        const imageElement = document.createElement("div");
+        imageElement.classList.add("image-item");
+        imageElement.onclick = () => showImage(image, index);
+        imageElement.innerHTML = `
+          <img src="${image.url}" alt="Image">
+          <div class="tags">${image.tags.join(", ")}</div>
+        `;
+        gallery.appendChild(imageElement);
+      });
+
+      if (allImages.length === 0) {
+        gallery.innerHTML = "<p>找不到符合條件的圖片。</p>";
+      }
+    }
+
+    function searchImages() {
+      const searchInput = document.getElementById("search-bar").value.toLowerCase();
+      const images = JSON.parse(localStorage.getItem("images")) || [];
+
+      const filteredImages = images.filter(image =>
+        image.tags.some(tag => tag.toLowerCase().includes(searchInput))
+      );
+
+      loadImages(filteredImages);
+    }
+
+    function showImage(image, index) {
+      currentImageIndex = index;
+      alert(`您正在查看的圖片標籤是：${image.tags.join(", ")}`);
+    }
+
+    // 預設載入所有圖片
+    loadImages();
+  </script>
+</body>
+</html>

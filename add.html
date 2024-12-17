@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新增圖片</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff8e1; /* 米色背景 */
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .tag-input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-sizing: border-box;
+    }
+
+    .add-btn {
+      background-color: #d1a85c; /* 奶茶色 */
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .add-btn:hover {
+      background-color: #a88c4b;
+    }
+
+    /* Home圖標樣式 */
+    .home-icon {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-size: 24px;
+      color: #d1a85c; /* 奶茶色 */
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .home-icon:hover {
+      background-color: #d1a85c;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>新增圖片</h1>
+  </header>
+
+  <div class="form-container">
+    <input type="text" id="image-url" placeholder="圖片網址" required>
+    <div class="tags-container">
+      <input type="text" class="tag-input" id="style-tag" placeholder="風格">
+      <input type="text" class="tag-input" id="color-tag" placeholder="顏色">
+      <input type="text" class="tag-input" id="project-tag" placeholder="專案">
+      <input type="text" class="tag-input" id="custom-tag" placeholder="自訂標籤">
+    </div>
+    <button class="add-btn" onclick="addImage()">新增圖片</button>
+  </div>
+
+  <!-- Home 圖示 -->
+  <div class="home-icon" onclick="window.location.href='index.html'">
+    🏠
+  </div>
+
+  <script>
+    function addImage() {
+      const url = document.getElementById('image-url').value;
+      const style = document.getElementById('style-tag').value;
+      const color = document.getElementById('color-tag').value;
+      const project = document.getElementById('project-tag').value;
+      const custom = document.getElementById('custom-tag').value;
+
+      if (url && style && color && project) {
+        const newImage = {
+          url: url,
+          tags: [`風格:${style}`, `顏色:${color}`, `專案:${project}`, custom && `自訂:${custom}`].filter(Boolean),
+        };
+
+        // 讀取現有的圖片資料
+        const images = JSON.parse(localStorage.getItem('images')) || [];
+        images.push(newImage); // 新增圖片到資料中
+        localStorage.setItem('images', JSON.stringify(images)); // 更新 Local Storage
+
+        alert('圖片已新增！');
+        window.location.href = 'index.html'; // 返回首頁
+      } else {
+        alert('請填寫所有必填欄位！');
+      }
+    }
+  </script>
+
+</body>
+</html>
