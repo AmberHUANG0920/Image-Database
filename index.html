@@ -62,9 +62,10 @@
     }
 
     .image-item img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
+    width: 100%; /* 寬度充滿容器 */
+    height: 100%; /* 高度與寬度保持一致，呈正方形 */
+    aspect-ratio: 1 / 1; /* 強制正方形比例 */
+    object-fit: cover; /* 保持圖片比例並填滿正方形 */
     }
 
     .image-item:hover {
@@ -87,7 +88,6 @@
       transition: opacity 0.3s;
     }
 
-    /* +按鈕的CSS */
     .add-icon {
       position: fixed;
       bottom: 20px;
@@ -114,9 +114,68 @@
       transform: scale(1.1); /* 放大效果 */
     }
 
+    .action-buttons {
+      position: fixed;
+      top: 50%;
+      right: 50px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 2000; /* 確保按鈕顯示在最上層 */
+      visibility: hidden; /* 預設隱藏 */
+    }
+
+    .action-btn {
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #d1a85c;
+      color: #d1a85c;
+      cursor: pointer;
+      width: 50px;
+      text-align: center;
+    }
+
+    .action-btn:hover {
+      background-color: #d1a85c;
+      color: white;
+    }
+
+    .action-btn:active {
+      transform: scale(0.95);
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000; /* 比 action-buttons 低 */
+    }
+
+    .overlay img {
+      max-width: 90%;
+      max-height: 80%;
+      object-fit: contain;
+    }
+
+    .overlay .tags {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: white;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
+
   <header>
     <h1>圖片瀏覽</h1>
   </header>
@@ -135,48 +194,92 @@
     +
   </div>
 
+  <!-- 彈出層按鈕 -->
+  <div class="action-buttons" id="action-buttons">
+    <button class="action-btn" onclick="editImage()">✏️</button>
+    <button class="action-btn" onclick="deleteImage()">🗑️</button>
+    <button class="action-btn" onclick="closeActions()">❌</button>
+  </div>
+
   <script>
     let currentImageIndex = null;
-
-    function loadImages(images = null) {
+  
+    function loadImages(filter = "") {
+      const images = JSON.parse(localStorage.getItem("images")) || [];
       const gallery = document.getElementById("image-gallery");
       gallery.innerHTML = "";
-
-      const allImages = images || JSON.parse(localStorage.getItem("images")) || [];
-
-      allImages.forEach((image, index) => {
-        const imageElement = document.createElement("div");
-        imageElement.classList.add("image-item");
-        imageElement.onclick = () => showImage(image, index);
-        imageElement.innerHTML = `
-          <img src="${image.url}" alt="Image">
-          <div class="tags">${image.tags.join(", ")}</div>
-        `;
-        gallery.appendChild(imageElement);
-      });
-
-      if (allImages.length === 0) {
-        gallery.innerHTML = "<p>找不到符合條件的圖片。</p>";
-      }
+  
+      images
+        .filter(image => 
+          !filter || image.tags.some(tag => tag.includes(filter))
+        )
+        .forEach((image, index) => {
+          const imageElement = document.createElement("div");
+          imageElement.classList.add("image-item");
+          imageElement.onclick = () => showImage(image, index);
+          imageElement.innerHTML = `
+            <img src="${image.url}" alt="Image">
+            <div class="tags">${image.tags.join(", ")}</div>
+          `;
+          gallery.appendChild(imageElement);
+        });
     }
-
+  
     function searchImages() {
-      const searchInput = document.getElementById("search-bar").value.toLowerCase();
-      const images = JSON.parse(localStorage.getItem("images")) || [];
-
-      const filteredImages = images.filter(image =>
-        image.tags.some(tag => tag.toLowerCase().includes(searchInput))
-      );
-
-      loadImages(filteredImages);
+      const searchBar = document.getElementById("search-bar");
+      const filter = searchBar.value.trim();
+      loadImages(filter);
     }
-
+  
     function showImage(image, index) {
       currentImageIndex = index;
-      alert(`您正在查看的圖片標籤是：${image.tags.join(", ")}`);
+  
+      const overlay = document.createElement("div");
+      overlay.classList.add("overlay");
+  
+      const imgElement = document.createElement("img");
+      imgElement.src = image.url;
+  
+      const tagsElement = document.createElement("div");
+      tagsElement.classList.add("tags");
+      tagsElement.textContent = image.tags.join(", ");
+  
+      overlay.appendChild(imgElement);
+      overlay.appendChild(tagsElement);
+      document.body.appendChild(overlay);
+  
+      const actionButtons = document.getElementById("action-buttons");
+      actionButtons.style.visibility = "visible";
     }
-
-    // 預設載入所有圖片
+  
+    function closeActions() {
+      const actionButtons = document.getElementById("action-buttons");
+      actionButtons.style.visibility = "hidden";
+  
+      const overlay = document.querySelector(".overlay");
+      if (overlay) {
+        document.body.removeChild(overlay);
+      }
+    }
+  
+    function editImage() {
+      if (currentImageIndex !== null) {
+        window.location.href = `edit.html?index=${currentImageIndex}`;
+      }
+    }
+  
+    function deleteImage() {
+      if (currentImageIndex !== null) {
+        if (confirm("確定要刪除這張圖片嗎？")) {
+          const images = JSON.parse(localStorage.getItem("images")) || [];
+          images.splice(currentImageIndex, 1);
+          localStorage.setItem("images", JSON.stringify(images));
+          loadImages();
+          closeActions();
+        }
+      }
+    }
+  
     loadImages();
   </script>
 </body>
