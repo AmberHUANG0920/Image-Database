@@ -62,10 +62,10 @@
     }
 
     .image-item img {
-    width: 100%; /* 寬度充滿容器 */
-    height: 100%; /* 高度與寬度保持一致，呈正方形 */
-    aspect-ratio: 1 / 1; /* 強制正方形比例 */
-    object-fit: cover; /* 保持圖片比例並填滿正方形 */
+      width: 100%; /* 寬度充滿容器 */
+      height: 100%; /* 高度與寬度保持一致，呈正方形 */
+      aspect-ratio: 1 / 1; /* 強制正方形比例 */
+      object-fit: cover; /* 保持圖片比例並填滿正方形 */
     }
 
     .image-item:hover {
@@ -88,30 +88,36 @@
       transition: opacity 0.3s;
     }
 
+    /* 改進加號按鈕樣式 */
     .add-icon {
       position: fixed;
       bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #fff;
-      width: 60px; /* 固定寬度 */
-      height: 60px; /* 固定高度，與寬度相等 */
-      border-radius: 50%; /* 圓形 */
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      font-size: 30px;
-      color: #d1a85c; /* 奶茶色 */
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.3s;
+      right: 20px; /* 靠右下角固定 */
+      background-color: #d1a85c; /* 奶茶色 */
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       display: flex;
+      justify-content: center;
       align-items: center;
-      justify-content: center; /* 水平垂直居中 */
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .add-icon span {
+      font-size: 28px;
+      color: white;
+      font-weight: bold;
     }
 
     .add-icon:hover {
-      background-color: #d1a85c;
-      color: white;
-      transform: scale(1.1); /* 放大效果 */
+      background-color: #a88c4b;
+      transform: scale(1.1);
+    }
+
+    .add-icon:active {
+      transform: scale(0.95);
     }
 
     .action-buttons {
@@ -189,9 +195,9 @@
     <!-- 圖片將顯示在這裡 -->
   </div>
 
-  <!-- + 圖示 -->
-  <div class="add-icon" onclick="window.location.href='add.html'">
-    +
+  <!-- 改進的 + 圖示 -->
+  <div class="add-icon" onclick="window.location.href='add.html'" aria-label="新增圖片" title="新增圖片">
+    <span>+</span>
   </div>
 
   <!-- 彈出層按鈕 -->
@@ -202,15 +208,16 @@
   </div>
 
   <script>
+    // 現有的 JavaScript 不變
     let currentImageIndex = null;
-  
+
     function loadImages(filter = "") {
       const images = JSON.parse(localStorage.getItem("images")) || [];
       const gallery = document.getElementById("image-gallery");
       gallery.innerHTML = "";
-  
+
       images
-        .filter(image => 
+        .filter(image =>
           !filter || image.tags.some(tag => tag.includes(filter))
         )
         .forEach((image, index) => {
@@ -224,50 +231,50 @@
           gallery.appendChild(imageElement);
         });
     }
-  
+
     function searchImages() {
       const searchBar = document.getElementById("search-bar");
       const filter = searchBar.value.trim();
       loadImages(filter);
     }
-  
+
     function showImage(image, index) {
       currentImageIndex = index;
-  
+
       const overlay = document.createElement("div");
       overlay.classList.add("overlay");
-  
+
       const imgElement = document.createElement("img");
       imgElement.src = image.url;
-  
+
       const tagsElement = document.createElement("div");
       tagsElement.classList.add("tags");
       tagsElement.textContent = image.tags.join(", ");
-  
+
       overlay.appendChild(imgElement);
       overlay.appendChild(tagsElement);
       document.body.appendChild(overlay);
-  
+
       const actionButtons = document.getElementById("action-buttons");
       actionButtons.style.visibility = "visible";
     }
-  
+
     function closeActions() {
       const actionButtons = document.getElementById("action-buttons");
       actionButtons.style.visibility = "hidden";
-  
+
       const overlay = document.querySelector(".overlay");
       if (overlay) {
         document.body.removeChild(overlay);
       }
     }
-  
+
     function editImage() {
       if (currentImageIndex !== null) {
         window.location.href = `edit.html?index=${currentImageIndex}`;
       }
     }
-  
+
     function deleteImage() {
       if (currentImageIndex !== null) {
         if (confirm("確定要刪除這張圖片嗎？")) {
@@ -279,7 +286,7 @@
         }
       }
     }
-  
+
     loadImages();
   </script>
 </body>
